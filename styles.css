@@ -1,0 +1,8 @@
+#asteroids {
+  display: flex;
+  justify-content: center;
+}
+
+#asteroidsSVG {
+  background-color: black;
+}
