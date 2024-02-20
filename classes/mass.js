@@ -24,6 +24,11 @@ class Mass {
     if (this.y + this.radius < 0) this.y = gameHeight + this.radius
 
   }
+
+  push(angle, force, elapsed) {
+    this.xSpeed += elapsed * (Math.cos(angle) * force) / this.mass
+    this.ySpeed += elapsed * (Math.sin(angle) * force) / this.mass
+  }
 }
 
 export { Mass };
