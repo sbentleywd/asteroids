@@ -1,12 +1,17 @@
 import { Mass } from "./mass.js";
 
 class Asteroid extends Mass {
-  constructor(x, y, mass, radius, rotationAngle, xSpeed, ySpeed, rotationSpeed, segments, options = {}) {
-    super(x, y, mass, radius, rotationAngle, xSpeed, ySpeed, rotationSpeed);
-    this.segments = segments;
-    this.options = options;
+  constructor(x, y, mass, xSpeed, ySpeed, rotationSpeed) {
+    const density = 1;
+    const radius = Math.sqrt(mass / density / Math.PI);
+
+    super(x, y, mass, radius, 0, xSpeed, ySpeed, rotationSpeed);
+    this.circumference = 2 * Math.PI * this.radius;
+    this.segments = Math.ceil(this.circumference / 15);
+    this.segments = Math.min(25, Math.max(5, this.segments));
+    this.noise = Math.random();
     this.radiusArray = [];
-    this.randomiseRadii();
+    this.randomiseRadii(this.noise);
   }
 
   draw() {

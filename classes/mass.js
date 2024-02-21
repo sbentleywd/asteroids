@@ -29,6 +29,18 @@ class Mass {
     this.xSpeed += elapsed * (Math.cos(angle) * force) / this.mass
     this.ySpeed += elapsed * (Math.sin(angle) * force) / this.mass
   }
+
+  twist(force, elapsed) {
+    this.rotationSpeed += elapsed * force / this.mass
+  }
+
+  speed() {
+    return Math.sqrt(Math.pow(this.xSpeed, 2) = Math.pow(this.ySpeed, 2))
+  }
+
+  movementAngle() {
+    return Math.atan2(this.ySpeed, this.xSpeed)
+  }
 }
 
 export { Mass };

@@ -1,7 +1,14 @@
 import { Asteroid } from "./classes/asteroid.js";
 
-const asteroid1 = new Asteroid(300, 200, 1, 20, 0, 10, -100, 50, 12, {});
-const asteroid2 = new Asteroid(300, 200, 1, 20, 0, -20, 50, 50, 16, {});
+const asteroid1 = new Asteroid(
+  Math.random() * 600,
+  Math.random() * 400,
+  Math.random() * 5000,
+  (Math.random() - 0.5) * 100,
+  (Math.random() - 0.5) * 100,
+  (Math.random() - 0.5) * 100
+);
+// const asteroid2 = new Asteroid(300, 200, 1000, -20, 50, 50);
 
 let previous, elapsed;
 
@@ -9,7 +16,7 @@ const draw = () => {
   let svgString = initSVG();
 
   svgString += asteroid1.draw();
-  svgString += asteroid2.draw();
+  // svgString += asteroid2.draw();
 
   svgString += closeSVG();
 
@@ -18,7 +25,7 @@ const draw = () => {
 
 const update = () => {
   asteroid1.update(elapsed / 1000);
-  asteroid2.update(elapsed / 1000);
+  // asteroid2.update(elapsed / 1000);
 };
 
 const frame = (timeStamp) => {
