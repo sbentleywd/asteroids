@@ -31,6 +31,7 @@ class Mass {
   }
 
   twist(force, elapsed) {
+    console.log(force)
     this.rotationSpeed += elapsed * force / this.mass
   }
 

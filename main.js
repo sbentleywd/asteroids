@@ -1,4 +1,5 @@
 import { Asteroid } from "./classes/asteroid.js";
+import { Ship } from "./classes/ship.js";
 
 const asteroid1 = new Asteroid(
   Math.random() * 600,
@@ -10,6 +11,8 @@ const asteroid1 = new Asteroid(
 );
 // const asteroid2 = new Asteroid(300, 200, 1000, -20, 50, 50);
 
+const ship = new Ship(300, 200);
+
 let previous, elapsed;
 
 const draw = () => {
@@ -17,6 +20,7 @@ const draw = () => {
 
   svgString += asteroid1.draw();
   // svgString += asteroid2.draw();
+  svgString += ship.draw();
 
   svgString += closeSVG();
 
@@ -26,6 +30,7 @@ const draw = () => {
 const update = () => {
   asteroid1.update(elapsed / 1000);
   // asteroid2.update(elapsed / 1000);
+  ship.update(elapsed / 1000);
 };
 
 const frame = (timeStamp) => {
@@ -46,3 +51,13 @@ const initSVG = () => {
 const closeSVG = () => {
   return `</svg>`;
 };
+
+document.addEventListener("keydown", (e) => {
+  console.log(e);
+
+  if (e.code === "ArrowLeft") {
+    ship.twist(-10, elapsed);
+  } else if (e.code === "ArrowRight") {
+    ship.twist(10, elapsed);
+  }
+});
