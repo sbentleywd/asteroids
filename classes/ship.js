@@ -1,21 +1,23 @@
 import { Mass } from './mass.js'
+import { helpers } from "../modules/helpers.js";
 
 class Ship extends Mass {
   constructor(x, y) {
-    super(x, y, 10, 20, 270)
+    super(x, y, 10, 20, helpers.degreesToRads(270))
   }
 
   draw(options) {
     let shipSVGString = ``
     options = options || {}
-    let angle = (this.angle || 0.5 * Math.PI) / 2
+
+    let angle = Math.PI / 4
     let curve1 = 0.25
     let curve2 = 0.75
     let shipX = this.x
     let shipY = this.y
     let rotation = this.rotationAngle
 
-    shipSVGString += `<g transform="translate(${shipX} ${shipY}) rotate(${rotation})" stroke="white">`
+    shipSVGString += `<g transform="translate(${shipX} ${shipY}) rotate(${helpers.radsToDegrees(rotation)})" stroke="white">`
 
     if (options.guide) {
       shipSVGString += `<circle cx="0" cy="0" r="${this.radius}" fill="rgba(0, 0, 0, 0.25)" />`
@@ -42,6 +44,7 @@ class Ship extends Mass {
   }
 
   turn(angle) {
+    // degrees
     this.rotationAngle += angle
   }
 }
