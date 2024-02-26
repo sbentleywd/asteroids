@@ -1,5 +1,5 @@
-const gameWidth = 600
-const gameHeight = 400
+const gameWidth = window.innerWidth
+const gameHeight = window.innerHeight - 20
 
 class Mass {
   constructor(x, y, mass, radius, rotationAngle, xSpeed, ySpeed, rotationSpeed) {

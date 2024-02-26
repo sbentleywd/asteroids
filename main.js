@@ -3,6 +3,8 @@ import { Ship } from "./classes/ship.js";
 import { helpers } from "./modules/helpers.js";
 
 const asteroids = [];
+const screenWidth = window.innerWidth;
+const screenHeight = window.innerHeight - 20;
 
 for (let i = 0; i < 5; i++) {
   const asteroid = new Asteroid(Math.random() * 600, Math.random() * 400, 2000 + Math.random() * 8000);
@@ -12,7 +14,7 @@ for (let i = 0; i < 5; i++) {
   asteroids.push(asteroid);
 }
 
-const ship = new Ship(300, 200);
+const ship = new Ship(300, 200, 1000);
 
 let previous, elapsed;
 
@@ -25,7 +27,6 @@ const draw = () => {
   svgString += closeSVG();
 
   document.getElementById("asteroids").innerHTML = svgString;
-  document.addEventListener("keydown", keyBoardHandler);
 };
 
 const update = () => {
@@ -45,26 +46,26 @@ const frame = (timeStamp) => {
 requestAnimationFrame(frame);
 
 const initSVG = () => {
-  return `<svg tabindex="0" width="600" height="400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" id="asteroidsSVG" >`;
+  return `<svg width="${screenWidth}" height="${screenHeight}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${screenWidth} ${screenHeight}" id="asteroidsSVG" >`;
 };
 
 const closeSVG = () => {
   return `</svg>`;
 };
 
-const keyBoardHandler = (e) => {
+document.addEventListener("keydown", (e) => keyBoardHandler(e, true));
+document.addEventListener("keyup", (e) => keyBoardHandler(e, false));
+
+const keyBoardHandler = (e, value) => {
   switch (e.code) {
     case "ArrowLeft":
-      ship.turn(helpers.degreesToRads(-10));
+      ship.leftThruster = value;
       break;
     case "ArrowRight":
-      ship.turn(helpers.degreesToRads(10));
+      ship.rightThruster = value;
       break;
     case "ArrowUp":
-      ship.push(ship.rotationAngle, 10, elapsed);
-      break;
-    case "ArrowDown":
-      ship.push(-1 * ship.rotationAngle, 10, elapsed);
+      ship.thrusterOn = value;
       break;
   }
 };
