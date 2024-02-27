@@ -1,10 +1,12 @@
-import { Mass } from './mass.js'
+import { Mass } from "./mass.js";
+import { Projectile } from "./projectile.js";
 import { helpers } from "../modules/helpers.js";
 
 class Ship extends Mass {
-  constructor(x, y, power) {
+  constructor(x, y, power, weaponPower) {
     super(x, y, 25, 20, helpers.degreesToRads(270));
     this.power = power;
+    this.weaponPower = weaponPower ?? 200;
     this.steeringPower = power / 20;
     this.thrusterOn = false;
     this.rightThruster = false;
@@ -53,10 +55,22 @@ class Ship extends Mass {
     super.update(elapsed);
   }
 
-  turn(angle) {
-    // degrees
-    this.rotationAngle += angle;
+  projectile(elapsed) {
+    const missile = new Projectile(
+      0.025,
+      1,
+      this.x + Math.cos(this.rotationAngle) * this.radius,
+      this.y + Math.sin(this.rotationAngle) * this.radius,
+      this.xSpeed,
+      this.ySpeed,
+      this.rotationSpeed
+    );
+
+    missile.push(this.rotationAngle, this.weaponPower, elapsed);
+    this.push(this.rotationAngle + Math.PI, this.weaponPower, elapsed)       
+
+    return missile;
   }
 }
 
-export { Ship }
+export { Ship };

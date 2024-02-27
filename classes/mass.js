@@ -22,7 +22,6 @@ class Mass {
     if (this.x + this.radius < 0) this.x = gameWidth + this.radius
     if (this.y - this.radius > gameHeight) this.y = -this.radius
     if (this.y + this.radius < 0) this.y = gameHeight + this.radius
-
   }
 
   push(angle, force, elapsed) {
