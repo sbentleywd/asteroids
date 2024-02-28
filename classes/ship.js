@@ -9,8 +9,13 @@ class Ship extends Mass {
     this.weaponPower = weaponPower ?? 200;
     this.steeringPower = power / 20;
     this.thrusterOn = false;
+    this.retroOn
     this.rightThruster = false;
     this.leftThruster = false;
+    this.trigger = false;
+    this.loaded = false;
+    this.reloadTime = 0.25;
+    this.timeUntilReload = this.reloadTime;
   }
 
   draw(options) {
@@ -49,16 +54,24 @@ class Ship extends Mass {
   }
 
   update(elapsed) {
-    if (this.thrusterOn) this.push(this.rotationAngle, this.power, elapsed);
+    console.log(this.speed());
+    if (this.thrusterOn && this.speed() < 500) this.push(this.rotationAngle, this.power, elapsed);
+    if (this.retroOn) this.push(this.rotationAngle + Math.PI, this.power / 2, elapsed);
     if (this.rightThruster) this.twist(this.steeringPower, elapsed);
     if (this.leftThruster) this.twist(this.steeringPower * -1, elapsed);
+
+    this.loaded = this.timeUntilReload === 0;
+
+    if (!this.loaded) {
+      this.timeUntilReload -= Math.min(elapsed, this.timeUntilReload);
+    }
     super.update(elapsed);
   }
 
   projectile(elapsed) {
     const missile = new Projectile(
-      0.025,
-      1,
+       0.025,
+      5,
       this.x + Math.cos(this.rotationAngle) * this.radius,
       this.y + Math.sin(this.rotationAngle) * this.radius,
       this.xSpeed,
@@ -67,7 +80,9 @@ class Ship extends Mass {
     );
 
     missile.push(this.rotationAngle, this.weaponPower, elapsed);
-    this.push(this.rotationAngle + Math.PI, this.weaponPower, elapsed)       
+    this.push(this.rotationAngle + Math.PI, this.weaponPower, elapsed);
+    
+    this.timeUntilReload = this.reloadTime;
 
     return missile;
   }

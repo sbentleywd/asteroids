@@ -34,7 +34,7 @@ class Mass {
   }
 
   speed() {
-    return Math.sqrt(Math.pow(this.xSpeed, 2) = Math.pow(this.ySpeed, 2))
+    return Math.sqrt(Math.pow(this.xSpeed, 2) + Math.pow(this.ySpeed, 2))
   }
 
   movementAngle() {

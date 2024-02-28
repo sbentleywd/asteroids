@@ -8,15 +8,15 @@ const projectiles = [];
 const screenWidth = window.innerWidth;
 const screenHeight = window.innerHeight - 20;
 
-// for (let i = 0; i < 5; i++) {
-//   const asteroid = new Asteroid(Math.random() * 600, Math.random() * 400, 2000 + Math.random() * 8000);
+for (let i = 0; i < 5; i++) {
+  const asteroid = new Asteroid(Math.random() * screenWidth, Math.random() * screenHeight, 2000 + Math.random() * 8000);
 
-//   asteroid.push(Math.PI * 2 * Math.random(), 1000, 60);
-//   asteroid.twist((Math.random() - 0.5) * 2000, 60);
-//   asteroids.push(asteroid);
-// }
+  asteroid.push(Math.PI * 2 * Math.random(), 1000, 60);
+  asteroid.twist((Math.random() - 0.5) * 2000, 60);
+  asteroids.push(asteroid);
+}
 
-const ship = new Ship(300, 200, 1000, 200);
+const ship = new Ship(screenWidth / 2, screenHeight / 2, 1000, 200);
 
 let previous, elapsed;
 
@@ -38,7 +38,7 @@ const update = () => {
     projectile.update(elapsed / 1000);
     if (projectile.life < 0) projectiles.splice(i, 1);
   });
-  if (ship.trigger) {
+  if (ship.trigger && ship.loaded) {
     projectiles.push(ship.projectile(elapsed / 1000));
   }
   ship.update(elapsed / 1000);
@@ -76,6 +76,9 @@ const keyBoardHandler = (e, value) => {
       break;
     case "ArrowUp":
       ship.thrusterOn = value;
+      break;
+    case "ArrowDown":
+      ship.retroOn = value;
       break;
     case "Space":
       ship.trigger = value;
