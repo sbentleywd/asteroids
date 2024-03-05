@@ -22,8 +22,8 @@ class Ship extends Mass {
     let shipSVGString = ``;
     options = options || {};
 
-    let angle = Math.PI / 4;
-    let curve1 = 0.35;
+    let angle = Math.PI / 4 * 0.9;
+    let curve1 = 0.55;
     let curve2 = 0.55;
     let shipX = this.x;
     let shipY = this.y;
@@ -33,8 +33,8 @@ class Ship extends Mass {
       rotation
     )})" stroke="white">`;
 
-    if (options.guide) {
-      shipSVGString += `<circle cx="0" cy="0" r="${this.radius}" fill="rgba(0, 0, 0, 0.25)" />`;
+    if (this.guide) {
+      shipSVGString += `<circle cx="0" cy="0" r="${this.radius}" fill="black" />`;
     }
 
     shipSVGString += `<path 
@@ -54,7 +54,6 @@ class Ship extends Mass {
   }
 
   update(elapsed) {
-    console.log(this.speed());
     if (this.thrusterOn && this.speed() < 500) this.push(this.rotationAngle, this.power, elapsed);
     if (this.retroOn) this.push(this.rotationAngle + Math.PI, this.power / 2, elapsed);
     if (this.rightThruster) this.twist(this.steeringPower, elapsed);
