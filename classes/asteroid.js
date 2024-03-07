@@ -51,6 +51,12 @@ class Asteroid extends Mass {
       this.radiusArray.push(this.radius + this.radius * radiusFactor)
     }
   }
+
+  child(mass) {
+    return new Asteroid(
+      this.x, this.y, mass, this.xSpeed, this.ySpeed, this.rotationSpeed
+    )
+  }
 }
 
 export { Asteroid }

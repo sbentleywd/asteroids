@@ -16,6 +16,9 @@ class Ship extends Mass {
     this.loaded = false;
     this.reloadTime = 0.25;
     this.timeUntilReload = this.reloadTime;
+    this.compromised = false;
+    this.maxHealth = 2.0;
+    this.health = this.maxHealth;
   }
 
   draw(options) {
@@ -34,7 +37,7 @@ class Ship extends Mass {
     )})" stroke="white">`;
 
     if (this.guide) {
-      shipSVGString += `<circle cx="0" cy="0" r="${this.radius}" fill="black" />`;
+      shipSVGString += `<circle cx="0" cy="0" r="${this.radius}" fill="black"  />`;
     }
 
     shipSVGString += `<path 
@@ -46,7 +49,7 @@ class Ship extends Mass {
       Math.sin(Math.PI + angle) * this.radius
     }
         Q ${Math.cos(-angle) * this.radius * curve2} ${Math.sin(-angle) * this.radius * curve2} ${this.radius} 0
-        " stroke="white" stroke-width="2" fill="black"/>`;
+        " stroke="white" stroke-width="2" fill="${this.compromised ? "red" : "black"}"/>`;
 
     shipSVGString += `</g>`;
 
@@ -64,6 +67,8 @@ class Ship extends Mass {
     if (!this.loaded) {
       this.timeUntilReload -= Math.min(elapsed, this.timeUntilReload);
     }
+
+    if(this.compromised) this.health -= Math.min(elapsed, this.health)
     super.update(elapsed);
   }
 

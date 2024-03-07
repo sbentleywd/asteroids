@@ -14,11 +14,16 @@ class Game {
     this.ship = new Ship(this.width / 2, this.height / 2, 1000, 200);
     this.projectiles = [];
     this.asteroids = [];
+    this.score = 0;
+    this.massDestroyed = 500;
+
     this.asteroids.push(this.createAsteroid());
     document.addEventListener("keydown", this.keyDown.bind(this), true);
     document.addEventListener("keyup", this.keyUp.bind(this), true);
     window.requestAnimationFrame(this.frame.bind(this));
   }
+
+  // Asteroid methods
 
   createAsteroid(elapsed) {
     const asteroid = this.initAsteroid();
@@ -31,9 +36,28 @@ class Game {
   }
 
   pushAsteroid(asteroid, elapsed) {
+    console.log(elapsed);
     elapsed = elapsed || 0.015;
-    asteroid.push(2 * Math.PI * Math.random(), this.asteroidPush * 50 * Math.random(), elapsed);
-    asteroid.twist(Math.random() - 0.5 * Math.PI * this.asteroidPush * 5, elapsed);
+    asteroid.push(2 * Math.PI * Math.random(), this.asteroidPush, elapsed);
+    asteroid.twist(Math.random() - 0.5 * Math.PI * this.asteroidPush * 0.02, elapsed);
+  }
+
+  splitAsteroid(asteroid, elapsed) {
+    asteroid.mass -= this.massDestroyed;
+    this.score += this.massDestroyed;
+
+    const split = 0.25 + 0.5 * Math.random(); // split unevenly
+    const child1 = asteroid.child(asteroid.mass * split);
+    const child2 = asteroid.child(asteroid.mass * (1 - split));
+
+    [child1, child2].forEach((child) => {
+      if (child.mass < this.massDestroyed) {
+        this.score += child.mass;
+      } else {
+        this.pushAsteroid(child, elapsed);
+        this.asteroids.push(child);
+      }
+    });
   }
 
   keyDown(e) {
@@ -68,24 +92,38 @@ class Game {
   }
 
   frame(timeStamp) {
+    // console.log(timeStamp)
     if (!this.previous) this.previous = timeStamp;
     const elapsed = timeStamp - this.previous;
     this.draw();
-    this.update(elapsed);
+    this.update(elapsed / 1000);
     this.previous = timeStamp;
     window.requestAnimationFrame(this.frame.bind(this));
   }
 
   update(elapsed) {
-    this.asteroids.forEach((asteroid) => asteroid.update(elapsed / 1000));
+    this.ship.compromised = false;
+    this.asteroids.forEach((asteroid) => {
+      asteroid.update(elapsed);
+      if (collision(asteroid, this.ship)) this.ship.compromised = true;
+    });
     this.projectiles.forEach((projectile, i, projectiles) => {
-      projectile.update(elapsed / 1000);
+      projectile.update(elapsed);
       if (projectile.life < 0) projectiles.splice(i, 1);
+      else {
+        this.asteroids.forEach((asteroid, j) => {
+          if (collision(asteroid, projectile)) {
+            projectiles.splice(i, 1);
+            this.asteroids.splice(j, 1);
+            this.splitAsteroid(asteroid, elapsed);
+          }
+        });
+      }
     });
     if (this.ship.trigger && this.ship.loaded) {
-      this.projectiles.push(this.ship.projectile(elapsed / 1000));
+      this.projectiles.push(this.ship.projectile(elapsed));
     }
-    this.ship.update(elapsed / 1000);
+    this.ship.update(elapsed);
   }
 
   draw() {
@@ -107,5 +145,13 @@ class Game {
     return `</svg>`;
   }
 }
+
+const collision = (obj1, obj2) => {
+  return distanceBetween(obj1, obj2) < obj1.radius + obj2.radius;
+};
+
+const distanceBetween = (obj1, obj2) => {
+  return Math.sqrt(Math.pow(obj1.x - obj2.x, 2) + Math.pow(obj1.y - obj2.y, 2));
+};
 
 export { Game };
