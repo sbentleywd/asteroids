@@ -4,15 +4,15 @@ import { Asteroid } from "./asteroid.js";
 class Game {
   constructor(id) {
     this.node = document.getElementById(id);
-    this.healthNode = document.getElementById("healthSpan");
     this.scoreNode = document.getElementById("scoreSpan");
+    this.livesNode = document.getElementById("healthSpan");
     this.guide = false;
     this.shipMass = 1000;
     this.shipRadius = 15;
     this.asteroidMass = 7000;
     this.asteroidPush = 5000000;
-    this.width = this.node.offsetWidth - 20;
-    this.height = this.node.offsetHeight - 20;
+    this.width = this.node.offsetWidth;
+    this.height = this.node.offsetHeight;
     this.ship = new Ship(this.width / 2, this.height / 2, 1500, 200);
     this.projectiles = [];
     this.asteroids = [];
@@ -126,6 +126,8 @@ class Game {
     if (this.ship.trigger && this.ship.loaded) {
       this.projectiles.push(this.ship.projectile(elapsed));
     }
+
+    if (this.ship.compromised) this.destroyShip()
     this.ship.update(elapsed);
 
     if (this.score !== this.previousScore) this.setScore()
@@ -142,6 +144,20 @@ class Game {
 
   setScore() {
     this.scoreNode.innerHTML = Math.round(this.score);
+  }
+
+  setLives() {
+    this.livesNode.innerHTML = this.ship.lives
+  }
+
+  destroyShip() {
+    this.ship.lives--;
+    this.ship.x = this.width / 2
+    this.ship.y = this.height / 2
+    this.ship.xSpeed = 0;
+    this.ship.ySpeed = 0;
+    this.ship.rotationAngle = 0;
+    this.setLives()
   }
 
   draw() {

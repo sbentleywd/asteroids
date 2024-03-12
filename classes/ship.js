@@ -19,6 +19,7 @@ class Ship extends Mass {
     this.compromised = false;
     this.maxHealth = 2.0;
     this.health = this.maxHealth;
+    this.lives = 3
   }
 
   draw(options) {
@@ -71,7 +72,7 @@ class Ship extends Mass {
       this.timeUntilReload -= Math.min(elapsed, this.timeUntilReload);
     }
 
-    if(this.compromised) this.health -= Math.min(elapsed, this.health)
+    // if (this.compromised) this.destroyed();
 
     super.update(elapsed);
   }
@@ -98,6 +99,7 @@ class Ship extends Mass {
   turn(elapsed) {
     this.rotationAngle += elapsed * 1.5
   }
+
 }
 
 export { Ship };
