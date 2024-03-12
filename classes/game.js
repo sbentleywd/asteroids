@@ -7,15 +7,16 @@ class Game {
     this.guide = false;
     this.shipMass = 1000;
     this.shipRadius = 15;
-    this.asteroidMass = 5000;
-    this.asteroidPush = 500000;
+    this.asteroidMass = 7000;
+    this.asteroidPush = 5000000;
     this.width = this.node.offsetWidth - 20;
     this.height = this.node.offsetHeight - 20;
-    this.ship = new Ship(this.width / 2, this.height / 2, 1000, 200);
+    this.ship = new Ship(this.width / 2, this.height / 2, 1500, 200);
     this.projectiles = [];
     this.asteroids = [];
     this.score = 0;
     this.massDestroyed = 500;
+    this.mainColour = '#20960b'
 
     this.asteroids.push(this.createAsteroid());
     document.addEventListener("keydown", this.keyDown.bind(this), true);
@@ -36,10 +37,9 @@ class Game {
   }
 
   pushAsteroid(asteroid, elapsed) {
-    console.log(elapsed);
     elapsed = elapsed || 0.015;
     asteroid.push(2 * Math.PI * Math.random(), this.asteroidPush, elapsed);
-    asteroid.twist(Math.random() - 0.5 * Math.PI * this.asteroidPush * 0.02, elapsed);
+    asteroid.twist(Math.random() - 0.5 * Math.PI * this.asteroidPush * 0.08, elapsed);
   }
 
   splitAsteroid(asteroid, elapsed) {
@@ -92,7 +92,6 @@ class Game {
   }
 
   frame(timeStamp) {
-    // console.log(timeStamp)
     if (!this.previous) this.previous = timeStamp;
     const elapsed = timeStamp - this.previous;
     this.draw();
@@ -124,6 +123,9 @@ class Game {
       this.projectiles.push(this.ship.projectile(elapsed));
     }
     this.ship.update(elapsed);
+
+    document.getElementById('healthSpan').innerHTML = Math.round(this.ship.health)
+    document.getElementById('scoreSpan').innerHTML = Math.round(this.score)
   }
 
   draw() {
@@ -138,7 +140,7 @@ class Game {
   }
 
   initSVG() {
-    return `<svg width="${this.width}" height="${this.height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${this.width} ${this.height}" id="asteroidsSVG" >`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${this.width} ${this.height}" id="asteroidsSVG" >`;
   }
 
   closeSVG() {

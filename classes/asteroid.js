@@ -3,7 +3,7 @@ import { Mass } from './mass.js'
 class Asteroid extends Mass {
   constructor(x, y, mass, xSpeed, ySpeed, rotationSpeed) {
     const density = 1
-    const radius = Math.sqrt(mass / density / Math.PI)
+    const radius = Math.sqrt(mass / density / Math.PI);
 
     super(x, y, mass, radius, 0, xSpeed, ySpeed, rotationSpeed)
     this.circumference = 2 * Math.PI * this.radius

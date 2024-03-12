@@ -7,7 +7,7 @@ class Ship extends Mass {
     super(x, y, 25, 20, helpers.degreesToRads(270));
     this.power = power;
     this.weaponPower = weaponPower ?? 200;
-    this.steeringPower = power / 20;
+    this.steeringPower = power / 25;
     this.thrusterOn = false;
     this.retroOn
     this.rightThruster = false;
@@ -59,8 +59,11 @@ class Ship extends Mass {
   update(elapsed) {
     if (this.thrusterOn && this.speed() < 500) this.push(this.rotationAngle, this.power, elapsed);
     if (this.retroOn) this.push(this.rotationAngle + Math.PI, this.power / 2, elapsed);
-    if (this.rightThruster) this.twist(this.steeringPower, elapsed);
-    if (this.leftThruster) this.twist(this.steeringPower * -1, elapsed);
+    // if (this.rightThruster && this.rotationSpeed < 3) this.twist(this.steeringPower, elapsed);
+    // if (this.leftThruster && this.rotationSpeed > -3) this.twist(this.steeringPower * -1, elapsed);
+
+    if (this.rightThruster) this.turn(elapsed)
+    if (this.leftThruster) this.turn(-elapsed)
 
     this.loaded = this.timeUntilReload === 0;
 
@@ -69,6 +72,8 @@ class Ship extends Mass {
     }
 
     if(this.compromised) this.health -= Math.min(elapsed, this.health)
+    console.log(this.health)
+
     super.update(elapsed);
   }
 
@@ -89,6 +94,10 @@ class Ship extends Mass {
     this.timeUntilReload = this.reloadTime;
 
     return missile;
+  }
+
+  turn(elapsed) {
+    this.rotationAngle += elapsed * 1.5
   }
 }
 
