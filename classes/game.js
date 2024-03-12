@@ -4,6 +4,8 @@ import { Asteroid } from "./asteroid.js";
 class Game {
   constructor(id) {
     this.node = document.getElementById(id);
+    this.healthNode = document.getElementById("healthSpan");
+    this.scoreNode = document.getElementById("scoreSpan");
     this.guide = false;
     this.shipMass = 1000;
     this.shipRadius = 15;
@@ -15,6 +17,7 @@ class Game {
     this.projectiles = [];
     this.asteroids = [];
     this.score = 0;
+    this.previousScore = 0
     this.massDestroyed = 500;
     this.mainColour = '#20960b'
 
@@ -101,7 +104,8 @@ class Game {
   }
 
   update(elapsed) {
-    this.ship.compromised = false;
+    this.reset()
+
     this.asteroids.forEach((asteroid) => {
       asteroid.update(elapsed);
       if (collision(asteroid, this.ship)) this.ship.compromised = true;
@@ -124,8 +128,20 @@ class Game {
     }
     this.ship.update(elapsed);
 
-    document.getElementById('healthSpan').innerHTML = Math.round(this.ship.health)
-    document.getElementById('scoreSpan').innerHTML = Math.round(this.score)
+    if (this.score !== this.previousScore) this.setScore()
+
+    // this.healthNode.innerHTML = Math.round(this.ship.health);
+    // this.scoreNode.innerHTML = Math.round(this.score);
+  }
+
+  reset() {
+    // reset values
+    this.ship.compromised = false;
+    this.previousScore = this.score;
+  }
+
+  setScore() {
+    this.scoreNode.innerHTML = Math.round(this.score);
   }
 
   draw() {

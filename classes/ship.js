@@ -72,7 +72,6 @@ class Ship extends Mass {
     }
 
     if(this.compromised) this.health -= Math.min(elapsed, this.health)
-    console.log(this.health)
 
     super.update(elapsed);
   }
