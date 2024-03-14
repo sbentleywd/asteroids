@@ -16,7 +16,7 @@ class Projectile extends Mass {
   }
 
   draw() {
-    let projectileString = `<circle cx="${this.x}" cy="${this.y}" r="${this.radius}" fill="white" />`;
+    let projectileString = `<circle cx="${this.x}" cy="${this.y}" r="${this.radius}" fill="yellow" />`;
 
     return projectileString;
   }

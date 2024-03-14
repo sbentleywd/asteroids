@@ -1,5 +1,6 @@
 import { Ship } from "./ship.js";
 import { Asteroid } from "./asteroid.js";
+import { Particle } from "./particle.js";
 
 class Game {
   constructor(id) {
@@ -37,6 +38,7 @@ class Game {
     this.setScore();
     this.projectiles = [];
     this.asteroids = [];
+    this.particles = [];
     this.asteroids.push(this.createAsteroid());
     this.asteroids.push(this.createAsteroid());
     this.gameOverNode.style.display = "none";
@@ -81,6 +83,22 @@ class Game {
         this.asteroids.push(child);
       }
     });
+
+    for (let i = 0; i < 9; i++) {
+      this.explosion(asteroid)
+    }
+  }
+
+  explosion(obj) {
+    const explosionParticle = new Particle(
+      0.01,
+      0.5,
+      obj.x + Math.random() * 20,
+      obj.y + Math.random() * 20,
+      Math.random() * 20,
+      Math.random() * 20
+    );
+    this.particles.push(explosionParticle);
   }
 
   keyDown(e) {
@@ -106,12 +124,13 @@ class Game {
         this.ship.retroOn = value;
         break;
       case "Space":
-        if (this.gameOver) this.newGame();
-        else this.ship.trigger = value;
+        this.ship.trigger = value;
         break;
-      case "KeyG":
-        // if (value) this.ship.guide = !this.ship.guide;
+      case "KeyS":
         this.ship.guide = value;
+        break;
+      case "KeyN":
+        if (this.gameOver) this.newGame();
         break;
     }
   }
@@ -128,17 +147,18 @@ class Game {
   update(elapsed) {
     this.resetValues();
 
+    // Asteroids
     this.asteroids.forEach((asteroid) => {
       asteroid.update(elapsed);
       if (collision(asteroid, this.ship)) {
         if (!this.ship.guide) this.ship.compromised = true;
         else {
-          // TODO: implement collision between asteroid and ship
           elasticCollision(this.ship, asteroid);
         }
       }
     });
 
+    // Projectiles
     this.projectiles.forEach((projectile, i, projectiles) => {
       projectile.update(elapsed);
       if (projectile.life < 0) projectiles.splice(i, 1);
@@ -152,7 +172,15 @@ class Game {
         });
       }
     });
-    if (this.ship.trigger && this.ship.loaded) {
+
+    // Particles
+    this.particles.forEach((particle, i, particles) => {
+      particle.update(elapsed);
+      if (particle.life < 0) particles.splice(i, 1);
+    });
+
+    // Ship
+    if (this.ship.trigger && this.ship.loaded && !this.ship.guide) {
       this.projectiles.push(this.ship.projectile(elapsed));
     }
 
@@ -216,6 +244,7 @@ class Game {
     let svgString = this.initSVG();
     this.asteroids.forEach((asteroid) => (svgString += asteroid.draw()));
     this.projectiles.forEach((projectile) => (svgString += projectile.draw()));
+    this.particles.forEach((particle) => (svgString += particle.draw()));
     if (!this.gameOver) svgString += this.ship.draw();
 
     svgString += this.closeSVG();
@@ -256,8 +285,6 @@ const elasticCollision = (obj1, obj2) => {
 
   // Impulse along the collision normal
   const impulse = (2 * dotProduct) / (obj2.mass + obj1.mass);
-
-  console.log(obj1.mass, obj2.mass)
 
   // New velocities after collision
   obj1.xSpeed -= impulse * obj2.mass * Math.cos(collisionAngle);

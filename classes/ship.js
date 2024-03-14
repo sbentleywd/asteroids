@@ -75,7 +75,7 @@ class Ship extends Mass {
   projectile(elapsed) {
     const missile = new Projectile(
        0.025,
-      5,
+      4,
       this.x + Math.cos(this.rotationAngle) * this.radius,
       this.y + Math.sin(this.rotationAngle) * this.radius,
       this.xSpeed,
