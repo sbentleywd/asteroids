@@ -57,6 +57,10 @@ class Asteroid extends Mass {
       this.x, this.y, mass, this.xSpeed, this.ySpeed, this.rotationSpeed
     )
   }
+
+  positionAsteroid() {
+    console.log('positioning')
+  }
 }
 
 export { Asteroid }

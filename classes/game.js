@@ -11,46 +11,52 @@ class Game {
     this.guide = false;
     this.shipMass = 1000;
     this.shipRadius = 15;
+    this.shipBuffer = 200;
     this.asteroidMass = 7000;
     this.asteroidPush = 5000000;
     this.width = this.node.offsetWidth;
     this.height = this.node.offsetHeight;
     this.score = 0;
-    this.previousScore = 0
+    this.previousScore = 0;
     this.massDestroyed = 500;
-    this.mainColour = '#20960b'
+    this.mainColour = "#20960b";
 
-    this.newGame()
+    this.newGame();
     document.addEventListener("keydown", this.keyDown.bind(this), true);
     document.addEventListener("keyup", this.keyUp.bind(this), true);
     window.requestAnimationFrame(this.frame.bind(this));
   }
 
   newGame() {
-    this.gameOver = false
-    this.level = 1
-    this.score = 0
-    this.ship = new Ship(this.width / 2, this.height / 2, 3000, 200)
-    this.setLives()
-    this.setLevel()
-    this.setScore()
+    this.gameOver = false;
+    this.level = 1;
+    this.score = 0;
+    this.ship = new Ship(this.width / 2, this.height / 2, 3000, 200);
+    this.setLives();
+    this.setLevel();
+    this.setScore();
     this.projectiles = [];
     this.asteroids = [];
     this.asteroids.push(this.createAsteroid());
     this.asteroids.push(this.createAsteroid());
-    this.gameOverNode.style.display = 'none'
+    this.gameOverNode.style.display = "none";
   }
 
   // Asteroid methods
 
-  createAsteroid(elapsed) {
+  createAsteroid() {
     const asteroid = this.initAsteroid();
     this.pushAsteroid(asteroid);
     return asteroid;
   }
 
   initAsteroid() {
-    return new Asteroid(this.width * Math.random(), this.height * Math.random(), this.asteroidMass);
+    let asteroid;
+    while (distanceBetween(asteroid, this.ship) < 300) {
+      asteroid = new Asteroid(this.width * Math.random(), this.height * Math.random(), this.asteroidMass);
+    }
+
+    return asteroid;
   }
 
   pushAsteroid(asteroid, elapsed) {
@@ -100,7 +106,7 @@ class Game {
         this.ship.retroOn = value;
         break;
       case "Space":
-        if (this.gameOver) this.newGame()
+        if (this.gameOver) this.newGame();
         else this.ship.trigger = value;
         break;
       case "KeyG":
@@ -119,7 +125,7 @@ class Game {
   }
 
   update(elapsed) {
-    this.resetValues()
+    this.resetValues();
 
     this.asteroids.forEach((asteroid) => {
       asteroid.update(elapsed);
@@ -146,10 +152,10 @@ class Game {
       this.projectiles.push(this.ship.projectile(elapsed));
     }
 
-    if (this.ship.compromised) this.destroyShip()
+    if (this.ship.compromised) this.destroyShip();
     this.ship.update(elapsed);
 
-    if (this.score !== this.previousScore) this.setScore()
+    if (this.score !== this.previousScore) this.setScore();
 
     if (this.asteroids.length === 0) {
       this.levelUp();
@@ -157,11 +163,11 @@ class Game {
   }
 
   levelUp() {
-    this.level++
+    this.level++;
     for (let i = 0; i < this.level + 1; i++) {
       this.asteroids.push(this.createAsteroid());
     }
-    this.setLevel()
+    this.setLevel();
   }
 
   resetValues() {
@@ -175,11 +181,11 @@ class Game {
   }
 
   setLives() {
-    this.livesNode.innerHTML = this.ship.lives
+    this.livesNode.innerHTML = this.ship.lives;
   }
 
   setLevel() {
-    this.levelNode.innerHTML = this.level
+    this.levelNode.innerHTML = this.level;
   }
 
   destroyShip() {
@@ -188,18 +194,18 @@ class Game {
     if (this.ship.lives === 0) {
       this.endGame();
     }
-    this.ship.x = this.width / 2
-    this.ship.y = this.height / 2
+    this.ship.x = this.width / 2;
+    this.ship.y = this.height / 2;
     this.ship.xSpeed = 0;
     this.ship.ySpeed = 0;
     this.ship.rotationAngle = 0;
-    this.setLives()
+    this.setLives();
   }
 
   endGame() {
     // this.gameOverNode.innerHTML = 'Game Over'
-    this.gameOverNode.style.display = 'flex'
-    this.gameOver = true
+    this.gameOverNode.style.display = "flex";
+    this.gameOver = true;
   }
 
   draw() {
@@ -227,6 +233,7 @@ const collision = (obj1, obj2) => {
 };
 
 const distanceBetween = (obj1, obj2) => {
+  if (obj1 == undefined || obj2 == undefined) return 0;
   return Math.sqrt(Math.pow(obj1.x - obj2.x, 2) + Math.pow(obj1.y - obj2.y, 2));
 };
 
