@@ -110,7 +110,8 @@ class Game {
         else this.ship.trigger = value;
         break;
       case "KeyG":
-        if (value) this.ship.guide = !this.ship.guide;
+        // if (value) this.ship.guide = !this.ship.guide;
+        this.ship.guide = value;
         break;
     }
   }
@@ -129,12 +130,14 @@ class Game {
 
     this.asteroids.forEach((asteroid) => {
       asteroid.update(elapsed);
-      if (collision(asteroid, this.ship)) this.ship.compromised = true;
+      if (collision(asteroid, this.ship)) {
+        if (!this.ship.guide) this.ship.compromised = true;
+        else {
+          // TODO: implement collision between asteroid and ship
+        }
+      }
     });
 
-    if (this.gameOver) {
-    } else {
-    }
     this.projectiles.forEach((projectile, i, projectiles) => {
       projectile.update(elapsed);
       if (projectile.life < 0) projectiles.splice(i, 1);

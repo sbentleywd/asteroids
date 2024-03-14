@@ -60,9 +60,6 @@ class Ship extends Mass {
   update(elapsed) {
     if (this.thrusterOn && this.speed() < 500) this.push(this.rotationAngle, this.power, elapsed);
     if (this.retroOn) this.push(this.rotationAngle + Math.PI, this.power / 2, elapsed);
-    // if (this.rightThruster && this.rotationSpeed < 3) this.twist(this.steeringPower, elapsed);
-    // if (this.leftThruster && this.rotationSpeed > -3) this.twist(this.steeringPower * -1, elapsed);
-
     if (this.rightThruster) this.turn(elapsed)
     if (this.leftThruster) this.turn(-elapsed)
 
@@ -71,8 +68,6 @@ class Ship extends Mass {
     if (!this.loaded) {
       this.timeUntilReload -= Math.min(elapsed, this.timeUntilReload);
     }
-
-    // if (this.compromised) this.destroyed();
 
     super.update(elapsed);
   }
