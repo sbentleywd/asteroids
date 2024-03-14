@@ -6,6 +6,7 @@ class Game {
     this.node = document.getElementById(id);
     this.scoreNode = document.getElementById("scoreSpan");
     this.livesNode = document.getElementById("healthSpan");
+    this.levelNode = document.getElementById("levelSpan");
     this.gameOverNode = document.getElementById("gameOver");
     this.guide = false;
     this.shipMass = 1000;
@@ -28,13 +29,15 @@ class Game {
   newGame() {
     this.gameOver = false
     this.level = 1
+    this.score = 0
     this.ship = new Ship(this.width / 2, this.height / 2, 3000, 200)
     this.setLives()
+    this.setLevel()
+    this.setScore()
     this.projectiles = [];
     this.asteroids = [];
     this.asteroids.push(this.createAsteroid());
     this.asteroids.push(this.createAsteroid());
-    // this.gameOverNode.innerHTML = ''
     this.gameOverNode.style.display = 'none'
   }
 
@@ -149,17 +152,16 @@ class Game {
     if (this.score !== this.previousScore) this.setScore()
 
     if (this.asteroids.length === 0) {
-      // console.log("No asteroids left");
       this.levelUp();
     }
   }
 
   levelUp() {
-    // console.log('levelup')
     this.level++
     for (let i = 0; i < this.level + 1; i++) {
       this.asteroids.push(this.createAsteroid());
     }
+    this.setLevel()
   }
 
   resetValues() {
@@ -174,6 +176,10 @@ class Game {
 
   setLives() {
     this.livesNode.innerHTML = this.ship.lives
+  }
+
+  setLevel() {
+    this.levelNode.innerHTML = this.level
   }
 
   destroyShip() {
