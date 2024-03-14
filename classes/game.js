@@ -134,6 +134,7 @@ class Game {
         if (!this.ship.guide) this.ship.compromised = true;
         else {
           // TODO: implement collision between asteroid and ship
+          elasticCollision(this.ship, asteroid);
         }
       }
     });
@@ -238,6 +239,31 @@ const collision = (obj1, obj2) => {
 const distanceBetween = (obj1, obj2) => {
   if (obj1 == undefined || obj2 == undefined) return 0;
   return Math.sqrt(Math.pow(obj1.x - obj2.x, 2) + Math.pow(obj1.y - obj2.y, 2));
+};
+
+const elasticCollision = (obj1, obj2) => {
+  const dx = obj1.x - obj2.x;
+  const dy = obj1.y - obj2.y;
+
+  const collisionAngle = Math.atan2(dy, dx);
+
+  // Relative velocity
+  const relVelX = obj1.xSpeed - obj2.xSpeed;
+  const relVelY = obj1.ySpeed - obj2.ySpeed;
+
+  // Dot product of relative velocity with collision normal
+  const dotProduct = relVelX * Math.cos(collisionAngle) + relVelY * Math.sin(collisionAngle);
+
+  // Impulse along the collision normal
+  const impulse = (2 * dotProduct) / (obj2.mass + obj1.mass);
+
+  console.log(obj1.mass, obj2.mass)
+
+  // New velocities after collision
+  obj1.xSpeed -= impulse * obj2.mass * Math.cos(collisionAngle);
+  obj1.ySpeed -= impulse * obj2.mass * Math.sin(collisionAngle);
+  obj2.xSpeed += impulse * obj1.mass * Math.cos(collisionAngle);
+  obj2.ySpeed += impulse * obj1.mass * Math.sin(collisionAngle);
 };
 
 export { Game };
