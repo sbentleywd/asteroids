@@ -6,6 +6,7 @@ class Game {
     this.node = document.getElementById(id);
     this.scoreNode = document.getElementById("scoreSpan");
     this.livesNode = document.getElementById("healthSpan");
+    this.gameOverNode = document.getElementById("gameOver");
     this.guide = false;
     this.shipMass = 1000;
     this.shipRadius = 15;
@@ -13,18 +14,28 @@ class Game {
     this.asteroidPush = 5000000;
     this.width = this.node.offsetWidth;
     this.height = this.node.offsetHeight;
-    this.ship = new Ship(this.width / 2, this.height / 2, 1500, 200);
-    this.projectiles = [];
-    this.asteroids = [];
     this.score = 0;
     this.previousScore = 0
     this.massDestroyed = 500;
     this.mainColour = '#20960b'
 
-    this.asteroids.push(this.createAsteroid());
+    this.newGame()
     document.addEventListener("keydown", this.keyDown.bind(this), true);
     document.addEventListener("keyup", this.keyUp.bind(this), true);
     window.requestAnimationFrame(this.frame.bind(this));
+  }
+
+  newGame() {
+    this.gameOver = false
+    this.level = 1
+    this.ship = new Ship(this.width / 2, this.height / 2, 3000, 200)
+    this.setLives()
+    this.projectiles = [];
+    this.asteroids = [];
+    this.asteroids.push(this.createAsteroid());
+    this.asteroids.push(this.createAsteroid());
+    // this.gameOverNode.innerHTML = ''
+    this.gameOverNode.style.display = 'none'
   }
 
   // Asteroid methods
@@ -86,7 +97,8 @@ class Game {
         this.ship.retroOn = value;
         break;
       case "Space":
-        this.ship.trigger = value;
+        if (this.gameOver) this.newGame()
+        else this.ship.trigger = value;
         break;
       case "KeyG":
         if (value) this.ship.guide = !this.ship.guide;
@@ -104,12 +116,16 @@ class Game {
   }
 
   update(elapsed) {
-    this.reset()
+    this.resetValues()
 
     this.asteroids.forEach((asteroid) => {
       asteroid.update(elapsed);
       if (collision(asteroid, this.ship)) this.ship.compromised = true;
     });
+
+    if (this.gameOver) {
+    } else {
+    }
     this.projectiles.forEach((projectile, i, projectiles) => {
       projectile.update(elapsed);
       if (projectile.life < 0) projectiles.splice(i, 1);
@@ -132,11 +148,21 @@ class Game {
 
     if (this.score !== this.previousScore) this.setScore()
 
-    // this.healthNode.innerHTML = Math.round(this.ship.health);
-    // this.scoreNode.innerHTML = Math.round(this.score);
+    if (this.asteroids.length === 0) {
+      // console.log("No asteroids left");
+      this.levelUp();
+    }
   }
 
-  reset() {
+  levelUp() {
+    // console.log('levelup')
+    this.level++
+    for (let i = 0; i < this.level + 1; i++) {
+      this.asteroids.push(this.createAsteroid());
+    }
+  }
+
+  resetValues() {
     // reset values
     this.ship.compromised = false;
     this.previousScore = this.score;
@@ -151,7 +177,11 @@ class Game {
   }
 
   destroyShip() {
-    this.ship.lives--;
+    if (this.ship.lives > 0) this.ship.lives--;
+
+    if (this.ship.lives === 0) {
+      this.endGame();
+    }
     this.ship.x = this.width / 2
     this.ship.y = this.height / 2
     this.ship.xSpeed = 0;
@@ -160,11 +190,17 @@ class Game {
     this.setLives()
   }
 
+  endGame() {
+    // this.gameOverNode.innerHTML = 'Game Over'
+    this.gameOverNode.style.display = 'flex'
+    this.gameOver = true
+  }
+
   draw() {
     let svgString = this.initSVG();
     this.asteroids.forEach((asteroid) => (svgString += asteroid.draw()));
     this.projectiles.forEach((projectile) => (svgString += projectile.draw()));
-    svgString += this.ship.draw();
+    if (!this.gameOver) svgString += this.ship.draw();
 
     svgString += this.closeSVG();
 

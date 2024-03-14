@@ -97,7 +97,7 @@ class Ship extends Mass {
   }
 
   turn(elapsed) {
-    this.rotationAngle += elapsed * 1.5
+    this.rotationAngle += elapsed * 1.6
   }
 
 }
