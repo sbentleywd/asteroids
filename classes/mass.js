@@ -25,6 +25,7 @@ class Mass {
   }
 
   push(angle, force, elapsed) {
+    elapsed = elapsed || 0.015
     this.xSpeed += elapsed * (Math.cos(angle) * force) / this.mass
     this.ySpeed += elapsed * (Math.sin(angle) * force) / this.mass
   }

@@ -1,6 +1,7 @@
 import { Ship } from "./ship.js";
 import { Asteroid } from "./asteroid.js";
 import { Particle } from "./particle.js";
+import { Powerup } from "./powerup.js";
 
 class Game {
   constructor(id) {
@@ -39,100 +40,20 @@ class Game {
     this.projectiles = [];
     this.asteroids = [];
     this.particles = [];
+    this.powerups = [];
     this.asteroids.push(this.createAsteroid());
     this.asteroids.push(this.createAsteroid());
+    // TODO: create powerups at random intervals
+    // this.powerups.push(this.createPowerup());
     this.gameOverNode.style.display = "none";
   }
 
-  // Asteroid methods
+  createPowerup() {
+    const powerupType = !this.ship.shieldEnabled ? "shield" : "life";
 
-  createAsteroid() {
-    const asteroid = this.initAsteroid();
-    this.pushAsteroid(asteroid);
-    return asteroid;
-  }
-
-  initAsteroid() {
-    let asteroid;
-    while (distanceBetween(asteroid, this.ship) < 300) {
-      asteroid = new Asteroid(this.width * Math.random(), this.height * Math.random(), this.asteroidMass);
-    }
-
-    return asteroid;
-  }
-
-  pushAsteroid(asteroid, elapsed) {
-    elapsed = elapsed || 0.015;
-    asteroid.push(2 * Math.PI * Math.random(), this.asteroidPush, elapsed);
-    asteroid.twist(Math.random() - 0.5 * Math.PI * this.asteroidPush * 0.08, elapsed);
-  }
-
-  splitAsteroid(asteroid, elapsed) {
-    asteroid.mass -= this.massDestroyed;
-    this.score += this.massDestroyed;
-
-    const split = 0.25 + 0.5 * Math.random(); // split unevenly
-    const child1 = asteroid.child(asteroid.mass * split);
-    const child2 = asteroid.child(asteroid.mass * (1 - split));
-
-    [child1, child2].forEach((child) => {
-      if (child.mass < this.massDestroyed) {
-        this.score += child.mass;
-      } else {
-        this.pushAsteroid(child, elapsed);
-        this.asteroids.push(child);
-      }
-    });
-
-    for (let i = 0; i < 9; i++) {
-      this.explosion(asteroid)
-    }
-  }
-
-  explosion(obj) {
-    const explosionParticle = new Particle(
-      0.01,
-      0.5,
-      obj.x + Math.random() * 20,
-      obj.y + Math.random() * 20,
-      Math.random() * 20,
-      Math.random() * 20
-    );
-    this.particles.push(explosionParticle);
-  }
-
-  keyDown(e) {
-    this.keyboardHandler(e, true);
-  }
-
-  keyUp(e) {
-    this.keyboardHandler(e, false);
-  }
-
-  keyboardHandler(e, value) {
-    switch (e.code) {
-      case "ArrowLeft":
-        this.ship.leftThruster = value;
-        break;
-      case "ArrowRight":
-        this.ship.rightThruster = value;
-        break;
-      case "ArrowUp":
-        this.ship.thrusterOn = value;
-        break;
-      case "ArrowDown":
-        this.ship.retroOn = value;
-        break;
-      case "Space":
-        this.ship.trigger = value;
-        break;
-      case "KeyS":
-        this.ship.guide = value;
-        break;
-      case "KeyN":
-        if (this.gameOver) this.newGame();
-        break;
-    }
+    const powerup = new Powerup("life", this.width * Math.random(), this.height * Math.random());
+    powerup.push(Math.random() * 2 * Math.PI, 1000000);
+    return powerup;
   }
 
   frame(timeStamp) {
@@ -170,6 +91,18 @@ class Game {
             this.splitAsteroid(asteroid, elapsed);
           }
         });
+
+        this.powerups.forEach((powerup, k) => {
+          if (collision(powerup, projectile)) {
+            projectiles.splice(i, 1);
+            this.powerups.splice(k, 1);
+
+            if (powerup.type === "life") {
+              this.ship.lives++;
+              this.setLives();
+            }
+          }
+        });
       }
     });
 
@@ -183,6 +116,12 @@ class Game {
     if (this.ship.trigger && this.ship.loaded && !this.ship.guide) {
       this.projectiles.push(this.ship.projectile(elapsed));
     }
+
+    // Powerups
+    this.powerups.forEach((powerup, i, powerups) => {
+      powerup.update(elapsed);
+      if (powerup.life < 0) powerups.splice(i, 1);
+    });
 
     if (this.ship.compromised) this.destroyShip();
     this.ship.update(elapsed);
@@ -240,11 +179,14 @@ class Game {
     this.gameOver = true;
   }
 
+  // Drawing
+
   draw() {
     let svgString = this.initSVG();
     this.asteroids.forEach((asteroid) => (svgString += asteroid.draw()));
     this.projectiles.forEach((projectile) => (svgString += projectile.draw()));
     this.particles.forEach((particle) => (svgString += particle.draw()));
+    this.powerups.forEach((powerup) => (svgString += powerup.draw()));
     if (!this.gameOver) svgString += this.ship.draw();
 
     svgString += this.closeSVG();
@@ -258,6 +200,99 @@ class Game {
 
   closeSVG() {
     return `</svg>`;
+  }
+
+  // Asteroid methods
+
+  createAsteroid() {
+    const asteroid = this.initAsteroid();
+    this.pushAsteroid(asteroid);
+    return asteroid;
+  }
+
+  initAsteroid() {
+    let asteroid;
+    while (distanceBetween(asteroid, this.ship) < 300) {
+      asteroid = new Asteroid(this.width * Math.random(), this.height * Math.random(), this.asteroidMass);
+    }
+
+    return asteroid;
+  }
+
+  pushAsteroid(asteroid, elapsed) {
+    elapsed = elapsed || 0.015;
+    asteroid.push(2 * Math.PI * Math.random(), this.asteroidPush, elapsed);
+    asteroid.twist(Math.random() - 0.5 * Math.PI * this.asteroidPush * 0.08, elapsed);
+  }
+
+  splitAsteroid(asteroid, elapsed) {
+    asteroid.mass -= this.massDestroyed;
+    this.score += this.massDestroyed;
+
+    const split = 0.25 + 0.5 * Math.random(); // split unevenly
+    const child1 = asteroid.child(asteroid.mass * split);
+    const child2 = asteroid.child(asteroid.mass * (1 - split));
+
+    [child1, child2].forEach((child) => {
+      if (child.mass < this.massDestroyed) {
+        this.score += child.mass;
+      } else {
+        this.pushAsteroid(child, elapsed);
+        this.asteroids.push(child);
+      }
+    });
+
+    for (let i = 0; i < 9; i++) {
+      this.explosion(asteroid);
+    }
+  }
+
+  explosion(obj) {
+    const explosionParticle = new Particle(
+      0.01,
+      0.5,
+      obj.x + Math.random() * 20,
+      obj.y + Math.random() * 20,
+      Math.random() * 20,
+      Math.random() * 20
+    );
+    this.particles.push(explosionParticle);
+  }
+
+  // Keyboard handling
+
+  keyDown(e) {
+    this.keyboardHandler(e, true);
+  }
+
+  keyUp(e) {
+    this.keyboardHandler(e, false);
+  }
+
+  keyboardHandler(e, value) {
+    switch (e.code) {
+      case "ArrowLeft":
+        this.ship.leftThruster = value;
+        break;
+      case "ArrowRight":
+        this.ship.rightThruster = value;
+        break;
+      case "ArrowUp":
+        this.ship.thrusterOn = value;
+        break;
+      case "ArrowDown":
+        this.ship.retroOn = value;
+        break;
+      case "Space":
+        this.ship.trigger = value;
+        break;
+      case "KeyS":
+        this.ship.guide = value;
+        break;
+      case "KeyN":
+        if (this.gameOver) this.newGame();
+        break;
+    }
   }
 }
 
