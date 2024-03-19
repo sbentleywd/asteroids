@@ -6,6 +6,7 @@ import { Powerup } from "./powerup.js";
 class Game {
   constructor(id) {
     this.node = document.getElementById(id);
+    this.titleScreenNode = document.getElementById("titleScreen");
     this.scoreNode = document.getElementById("scoreSpan");
     this.livesNode = document.getElementById("healthSpan");
     this.levelNode = document.getElementById("levelSpan");
@@ -22,6 +23,7 @@ class Game {
     this.previousScore = 0;
     this.massDestroyed = 500;
     this.mainColour = "#20960b";
+    this.titleScreen = true;
 
     this.newGame();
     document.addEventListener("keydown", this.keyDown.bind(this), true);
@@ -44,6 +46,12 @@ class Game {
     this.asteroids.push(this.createAsteroid());
     this.asteroids.push(this.createAsteroid());
     this.gameOverNode.style.display = "none";
+  }
+
+  startGame() {
+    this.titleScreen = false;
+    this.titleScreenNode.style.display = "none";
+    this.ship = new Ship(this.width / 2, this.height / 2, 3000, 200);
   }
 
   createPowerup(type) {
@@ -74,10 +82,12 @@ class Game {
     // Asteroids
     this.asteroids.forEach((asteroid) => {
       asteroid.update(elapsed);
-      if (collision(asteroid, this.ship)) {
-        if (!this.ship.guide) this.ship.compromised = true;
-        else {
-          elasticCollision(this.ship, asteroid);
+      if (!this.titleScreen) {
+        if (collision(asteroid, this.ship)) {
+          if (!this.ship.guide) this.ship.compromised = true;
+          else {
+            elasticCollision(this.ship, asteroid);
+          }
         }
       }
     });
@@ -192,7 +202,7 @@ class Game {
     this.projectiles.forEach((projectile) => (svgString += projectile.draw()));
     this.particles.forEach((particle) => (svgString += particle.draw()));
     this.powerups.forEach((powerup) => (svgString += powerup.draw()));
-    if (!this.gameOver) svgString += this.ship.draw();
+    if (!this.gameOver && !this.titleScreen) svgString += this.ship.draw();
 
     svgString += this.closeSVG();
 
@@ -289,13 +299,14 @@ class Game {
         this.ship.retroOn = value;
         break;
       case "Space":
-        this.ship.trigger = value;
+        if (!this.titleScreen) this.ship.trigger = value;
         break;
       case "KeyS":
         if (this.ship.shieldEnabled) this.ship.guide = value;
         break;
       case "KeyN":
         if (this.gameOver) this.newGame();
+        else if (this.titleScreen) this.startGame();
         break;
     }
   }
