@@ -24,6 +24,8 @@ class Powerup extends Mass {
         a10,10 90 0,1 0,20
         a10,10 90 0,1 -20,0
         z" stroke="red" fill="red" />`;
+    } else if (this.type === "shield") {
+      powerupString += `<path d="M0 -18 L12 -5 L12 10 L-12 10 L-12 -5 L0 -18" fill="silver" stroke="black" stroke-width="2" />`
     }
 
     powerupString += `</g>`;

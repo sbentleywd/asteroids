@@ -17,7 +17,7 @@ class Asteroid extends Mass {
   draw() {
     const segmentAngle = 360 / this.segments
 
-    let asteroidString = `<g transform="translate(${this.x} ${this.y}) rotate(${this.rotationAngle})" stroke="white">`
+    let asteroidString = `<g transform="translate(${this.x} ${this.y}) rotate(${this.rotationAngle})">`
     let pathString = `<path `
 
     for (let i = 0; i < this.segments - 1; i++) {
@@ -37,7 +37,7 @@ class Asteroid extends Mass {
       }
     }
 
-    pathString += ` Z" stroke-width="2" fill="black" />`
+    pathString += ` Z" stroke-width="2" fill="gray" />`
     asteroidString += pathString
 
     asteroidString += `</g>`

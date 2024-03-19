@@ -43,17 +43,20 @@ class Game {
     this.powerups = [];
     this.asteroids.push(this.createAsteroid());
     this.asteroids.push(this.createAsteroid());
-    // TODO: create powerups at random intervals
-    // this.powerups.push(this.createPowerup());
     this.gameOverNode.style.display = "none";
   }
 
-  createPowerup() {
-    const powerupType = !this.ship.shieldEnabled ? "shield" : "life";
-
-    const powerup = new Powerup("life", this.width * Math.random(), this.height * Math.random());
+  createPowerup(type) {
+    const powerup = new Powerup(type, this.width * Math.random(), this.height * Math.random());
     powerup.push(Math.random() * 2 * Math.PI, 1000000);
     return powerup;
+  }
+
+  destroyPowerup(type) {
+    if (type === "life") {
+      this.ship.lives++;
+      this.setLives();
+    } else if (type === "shield") this.ship.shieldEnabled = true;
   }
 
   frame(timeStamp) {
@@ -94,13 +97,9 @@ class Game {
 
         this.powerups.forEach((powerup, k) => {
           if (collision(powerup, projectile)) {
+            this.destroyPowerup(powerup.type);
             projectiles.splice(i, 1);
             this.powerups.splice(k, 1);
-
-            if (powerup.type === "life") {
-              this.ship.lives++;
-              this.setLives();
-            }
           }
         });
       }
@@ -139,6 +138,12 @@ class Game {
       this.asteroids.push(this.createAsteroid());
     }
     this.setLevel();
+
+    if (!this.ship.shieldEnabled && this.level <= 3) {
+      this.powerups.push(this.createPowerup("shield"));
+    } else if (this.ship.lives === 1) {
+      this.powerups.push(this.createPowerup("life"));
+    }
   }
 
   resetValues() {
@@ -287,7 +292,7 @@ class Game {
         this.ship.trigger = value;
         break;
       case "KeyS":
-        this.ship.guide = value;
+        if (this.ship.shieldEnabled) this.ship.guide = value;
         break;
       case "KeyN":
         if (this.gameOver) this.newGame();

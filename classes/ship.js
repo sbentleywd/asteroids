@@ -39,7 +39,7 @@ class Ship extends Mass {
     )})" stroke="white">`;
 
     if (this.guide) {
-      shipSVGString += `<circle cx="0" cy="0" r="${this.radius}" fill="black"  />`;
+      shipSVGString += `<circle cx="0" cy="0" r="${this.radius}" fill="black" stroke="aqua" />`;
     }
 
     shipSVGString += `<path 
