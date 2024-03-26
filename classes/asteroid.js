@@ -77,7 +77,6 @@ class Asteroid extends Mass {
   }
 
   destroy() {
-    this.svgNode.textContent = ''
     this.svgNode.remove()
   }
 }

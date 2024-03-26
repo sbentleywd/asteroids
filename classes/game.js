@@ -74,6 +74,7 @@ class Game {
     this.ship.xSpeed = 0;
     this.ship.ySpeed = 0;
     this.ship.rotationAngle = 0;
+    this.ship.lives = 3;
   }
 
   createPowerup(type) {
