@@ -92,7 +92,6 @@ class Game {
   frame(timeStamp) {
     if (!this.previous) this.previous = timeStamp;
     const elapsed = timeStamp - this.previous;
-    // this.draw();
     this.update(elapsed / 1000);
     this.previous = timeStamp;
     window.requestAnimationFrame(this.frame.bind(this));
@@ -226,29 +225,6 @@ class Game {
     this.gameOverNode.style.display = "flex";
     this.gameOver = true;
     this.ship.svgNode.setAttribute("display", "none");
-  }
-
-  // Drawing
-
-  draw() {
-    let svgString = this.initSVG();
-    // this.asteroids.forEach((asteroid) => (svgString += asteroid.draw()));
-    // this.projectiles.forEach((projectile) => (svgString += projectile.draw()));
-    // this.particles.forEach((particle) => (svgString += particle.draw()));
-    // this.powerups.forEach((powerup) => (svgString += powerup.draw()));
-    // if (!this.gameOver && !this.titleScreen) svgString += this.ship.draw();
-
-    svgString += this.closeSVG();
-
-    // this.node.innerHTML = svgString;
-  }
-
-  initSVG() {
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${this.width} ${this.height}" id="asteroidsSVG" >`;
-  }
-
-  closeSVG() {
-    return `</svg>`;
   }
 
   // Asteroid methods
