@@ -40,7 +40,6 @@ class Game {
   }
 
   newGame() {
-    console.log("newGame");
     this.gameOver = false;
     this.level = 1;
     this.score = 0;
@@ -64,7 +63,6 @@ class Game {
   }
 
   startGame() {
-    console.log("start game");
     this.titleScreen = false;
     this.titleScreenNode.style.display = "none";
     this.ship.svgNode.setAttribute("display", "inline");
@@ -79,12 +77,12 @@ class Game {
   }
 
   createPowerup(type) {
-    const powerup = new Powerup(type, this.width * Math.random(), this.height * Math.random());
+    const powerup = new Powerup(type, this.width * Math.random(), this.height * Math.random(), this.svgNode);
     powerup.push(Math.random() * 2 * Math.PI, 1000000);
     return powerup;
   }
 
-  destroyPowerup(type) {
+  usePowerup(type) {
     if (type === "life") {
       this.ship.lives++;
       this.setLives();
@@ -132,13 +130,15 @@ class Game {
             this.splitAsteroid(asteroid, elapsed);
           }
         });
-        // this.powerups.forEach((powerup, k) => {
-        //   if (collision(powerup, projectile)) {
-        //     this.destroyPowerup(powerup.type);
-        //     projectiles.splice(i, 1);
-        //     this.powerups.splice(k, 1);
-        //   }
-        // });
+        this.powerups.forEach((powerup, k) => {
+          if (collision(powerup, projectile)) {
+            this.usePowerup(powerup.type);
+            projectiles.splice(i, 1);
+            projectile.destroy()
+            this.powerups.splice(k, 1);
+            powerup.destroy()
+          }
+        });
       }
     });
 
@@ -173,6 +173,7 @@ class Game {
   }
 
   levelUp() {
+    this.projectiles.forEach((projectile) => projectile.destroy());
     this.level++;
     for (let i = 0; i < this.level + 1; i++) {
       this.asteroids.push(this.createAsteroid());
@@ -187,7 +188,6 @@ class Game {
   }
 
   resetValues() {
-    // reset values
     this.ship.compromised = false;
     this.previousScore = this.score;
   }
@@ -219,10 +219,10 @@ class Game {
   }
 
   endGame() {
-    console.log('endGame')
     this.projectiles.forEach((projectile) => projectile.destroy());
     this.asteroids.forEach((asteroid) => asteroid.destroy());
     this.particles.forEach(particle => particle.destroy())
+    this.powerups.forEach(powerup => powerup.destroy())
     this.gameOverNode.style.display = "flex";
     this.gameOver = true;
     this.ship.svgNode.setAttribute("display", "none");

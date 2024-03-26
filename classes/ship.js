@@ -21,7 +21,7 @@ class Ship extends Mass {
     this.maxHealth = 2.0;
     this.health = this.maxHealth;
     this.lives = 3;
-    this.shieldEnabled = true;
+    this.shieldEnabled = false;
 
     this.draw();
   }
