@@ -6,6 +6,15 @@ import { Powerup } from "./powerup.js";
 class Game {
   constructor(id) {
     this.node = document.getElementById(id);
+    this.width = this.node.offsetWidth;
+    this.height = this.node.offsetHeight;
+
+    const gameSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    gameSVG.setAttribute("viewBox", `0 0 ${this.width} ${this.height}`);
+    // TODO: not sure we need this?
+    gameSVG.setAttribute("id", "asteroidsSVG");
+    this.svgNode = this.node.appendChild(gameSVG);
+
     this.titleScreenNode = document.getElementById("titleScreen");
     this.scoreNode = document.getElementById("scoreSpan");
     this.livesNode = document.getElementById("healthSpan");
@@ -17,8 +26,7 @@ class Game {
     this.shipBuffer = 200;
     this.asteroidMass = 7000;
     this.asteroidPush = 5000000;
-    this.width = this.node.offsetWidth;
-    this.height = this.node.offsetHeight;
+
     this.score = 0;
     this.previousScore = 0;
     this.massDestroyed = 500;
@@ -32,10 +40,16 @@ class Game {
   }
 
   newGame() {
+    console.log("newGame");
     this.gameOver = false;
     this.level = 1;
     this.score = 0;
-    this.ship = new Ship(this.width / 2, this.height / 2, 3000, 200);
+    if (this.ship) {
+      this.resetShip();
+    } else {
+      this.ship = new Ship(this.width / 2, this.height / 2, 3000, 200, this.svgNode);
+    }
+
     this.setLives();
     this.setLevel();
     this.setScore();
@@ -46,12 +60,22 @@ class Game {
     this.asteroids.push(this.createAsteroid());
     this.asteroids.push(this.createAsteroid());
     this.gameOverNode.style.display = "none";
+    if (!this.titleScreen) this.ship.svgNode.setAttribute("display", "inline");
   }
 
   startGame() {
+    console.log("start game");
     this.titleScreen = false;
     this.titleScreenNode.style.display = "none";
-    this.ship = new Ship(this.width / 2, this.height / 2, 3000, 200);
+    this.ship.svgNode.setAttribute("display", "inline");
+  }
+
+  resetShip() {
+    this.ship.x = this.width / 2;
+    this.ship.y = this.height / 2;
+    this.ship.xSpeed = 0;
+    this.ship.ySpeed = 0;
+    this.ship.rotationAngle = 0;
   }
 
   createPowerup(type) {
@@ -70,7 +94,7 @@ class Game {
   frame(timeStamp) {
     if (!this.previous) this.previous = timeStamp;
     const elapsed = timeStamp - this.previous;
-    this.draw();
+    // this.draw();
     this.update(elapsed / 1000);
     this.previous = timeStamp;
     window.requestAnimationFrame(this.frame.bind(this));
@@ -95,23 +119,26 @@ class Game {
     // Projectiles
     this.projectiles.forEach((projectile, i, projectiles) => {
       projectile.update(elapsed);
-      if (projectile.life < 0) projectiles.splice(i, 1);
-      else {
+      if (projectile.life < 0) {
+        projectile.destroy();
+        projectiles.splice(i, 1);
+      } else {
         this.asteroids.forEach((asteroid, j) => {
           if (collision(asteroid, projectile)) {
             projectiles.splice(i, 1);
+            projectile.destroy();
+            asteroid.destroy();
             this.asteroids.splice(j, 1);
             this.splitAsteroid(asteroid, elapsed);
           }
         });
-
-        this.powerups.forEach((powerup, k) => {
-          if (collision(powerup, projectile)) {
-            this.destroyPowerup(powerup.type);
-            projectiles.splice(i, 1);
-            this.powerups.splice(k, 1);
-          }
-        });
+        // this.powerups.forEach((powerup, k) => {
+        //   if (collision(powerup, projectile)) {
+        //     this.destroyPowerup(powerup.type);
+        //     projectiles.splice(i, 1);
+        //     this.powerups.splice(k, 1);
+        //   }
+        // });
       }
     });
 
@@ -122,7 +149,7 @@ class Game {
     });
 
     // Ship
-    if (this.ship.trigger && this.ship.loaded && !this.ship.guide) {
+    if (this.ship.trigger && this.ship.loaded && !this.ship.guide && !this.gameOver && !this.titleScreen) {
       this.projectiles.push(this.ship.projectile(elapsed));
     }
 
@@ -189,24 +216,26 @@ class Game {
   }
 
   endGame() {
-    // this.gameOverNode.innerHTML = 'Game Over'
+    this.projectiles.forEach((projectile) => projectile.destroy());
+    this.asteroids.forEach((asteroid) => asteroid.destroy());
     this.gameOverNode.style.display = "flex";
     this.gameOver = true;
+    this.ship.svgNode.setAttribute("display", "none");
   }
 
   // Drawing
 
   draw() {
     let svgString = this.initSVG();
-    this.asteroids.forEach((asteroid) => (svgString += asteroid.draw()));
-    this.projectiles.forEach((projectile) => (svgString += projectile.draw()));
-    this.particles.forEach((particle) => (svgString += particle.draw()));
-    this.powerups.forEach((powerup) => (svgString += powerup.draw()));
-    if (!this.gameOver && !this.titleScreen) svgString += this.ship.draw();
+    // this.asteroids.forEach((asteroid) => (svgString += asteroid.draw()));
+    // this.projectiles.forEach((projectile) => (svgString += projectile.draw()));
+    // this.particles.forEach((particle) => (svgString += particle.draw()));
+    // this.powerups.forEach((powerup) => (svgString += powerup.draw()));
+    // if (!this.gameOver && !this.titleScreen) svgString += this.ship.draw();
 
     svgString += this.closeSVG();
 
-    this.node.innerHTML = svgString;
+    // this.node.innerHTML = svgString;
   }
 
   initSVG() {
@@ -226,12 +255,14 @@ class Game {
   }
 
   initAsteroid() {
-    let asteroid;
-    while (distanceBetween(asteroid, this.ship) < 300) {
-      asteroid = new Asteroid(this.width * Math.random(), this.height * Math.random(), this.asteroidMass);
+    let x = Math.random() * this.width;
+    let y = Math.random() * this.height;
+    while (distanceBetween({ x, y }, this.ship) < 300) {
+      x = Math.random() * this.width;
+      y = Math.random() * this.height;
     }
 
-    return asteroid;
+    return new Asteroid(x, x, this.asteroidMass, undefined, undefined, undefined, this.svgNode);
   }
 
   pushAsteroid(asteroid, elapsed) {
@@ -258,7 +289,7 @@ class Game {
     });
 
     for (let i = 0; i < 9; i++) {
-      this.explosion(asteroid);
+      // this.explosion(asteroid);
     }
   }
 
@@ -299,7 +330,7 @@ class Game {
         this.ship.retroOn = value;
         break;
       case "Space":
-        if (!this.titleScreen) this.ship.trigger = value;
+        this.ship.trigger = value;
         break;
       case "KeyS":
         if (this.ship.shieldEnabled) this.ship.guide = value;

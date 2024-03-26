@@ -41,6 +41,10 @@ class Mass {
   movementAngle() {
     return Math.atan2(this.ySpeed, this.xSpeed)
   }
+
+  destroy() {
+    this.gameNode.removeChild(this.svgNode);
+  }
 }
 
 export { Mass };
