@@ -145,7 +145,10 @@ class Game {
     // Particles
     this.particles.forEach((particle, i, particles) => {
       particle.update(elapsed);
-      if (particle.life < 0) particles.splice(i, 1);
+      if (particle.life < 0) {
+        particles.splice(i, 1)
+        particle.destroy()
+      }
     });
 
     // Ship
@@ -216,8 +219,10 @@ class Game {
   }
 
   endGame() {
+    console.log('endGame')
     this.projectiles.forEach((projectile) => projectile.destroy());
     this.asteroids.forEach((asteroid) => asteroid.destroy());
+    this.particles.forEach(particle => particle.destroy())
     this.gameOverNode.style.display = "flex";
     this.gameOver = true;
     this.ship.svgNode.setAttribute("display", "none");
@@ -289,7 +294,7 @@ class Game {
     });
 
     for (let i = 0; i < 9; i++) {
-      // this.explosion(asteroid);
+      this.explosion(asteroid);
     }
   }
 
@@ -300,7 +305,8 @@ class Game {
       obj.x + Math.random() * 20,
       obj.y + Math.random() * 20,
       Math.random() * 20,
-      Math.random() * 20
+      Math.random() * 20,
+      this.svgNode
     );
     this.particles.push(explosionParticle);
   }
