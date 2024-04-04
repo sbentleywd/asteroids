@@ -55,7 +55,7 @@ class Game {
     this.projectiles = new Map();
     this.asteroids = [];
     this.particles = [];
-    this.powerups = [];
+    this.powerups = new Map();
     this.asteroids.push(this.createAsteroid());
     this.asteroids.push(this.createAsteroid());
     this.gameOverNode.style.display = "none";
@@ -115,29 +115,29 @@ class Game {
     });
 
     // Projectiles
-    this.projectiles.forEach((projectile, key, projectiles) => {
+    this.projectiles.forEach((projectile, projectileGuid, projectiles) => {
       projectile.update(elapsed);
       if (projectile.life < 0) {
         projectile.destroy();
-        projectiles.delete(key)
+        projectiles.delete(projectileGuid)
       } else {
         this.asteroids.forEach((asteroid, j) => {
           if (collision(asteroid, projectile)) {
             projectile.destroy();
-            projectiles.delete(key)
+            projectiles.delete(projectileGuid)
             asteroid.destroy();
             this.asteroids.splice(j, 1);
             this.splitAsteroid(asteroid, elapsed);
           }
         });
-        this.powerups.forEach((powerup, k) => {
+        this.powerups.forEach((powerup, powerupGuid) => {
           if (collision(powerup, projectile)) {
             this.usePowerup(powerup.type);
             projectile.destroy();
-            projectiles.delete(key)
+            projectiles.delete(projectileGuid)
 
             powerup.destroy();
-            this.powerups.splice(k, 1);
+            this.powerups.delete(powerupGuid)
           }
         });
       }
@@ -159,9 +159,9 @@ class Game {
     }
 
     // Powerups
-    this.powerups.forEach((powerup, i, powerups) => {
+    this.powerups.forEach((powerup, powerupGuid, powerups) => {
       powerup.update(elapsed);
-      if (powerup.life < 0) powerups.splice(i, 1);
+      if (powerup.life < 0) powerups.delete(powerupGuid) // powerups.splice(i, 1);
     });
 
     if (this.ship.compromised) this.destroyShip();
@@ -184,9 +184,11 @@ class Game {
     this.setLevel();
 
     if (!this.ship.shieldEnabled && this.level <= 3) {
-      this.powerups.push(this.createPowerup("shield"));
+      const powerup = this.createPowerup("shield")
+      this.powerups.set(powerup.guid, powerup)
     } else if (this.ship.lives === 1) {
-      this.powerups.push(this.createPowerup("life"));
+      const powerup = this.createPowerup("life")
+      this.powerups.set(powerup.guid, powerup)
     }
   }
 
