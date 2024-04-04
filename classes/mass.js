@@ -1,8 +1,11 @@
+import { generateGuid } from "./game.js";
+
 const gameWidth = window.innerWidth
 const gameHeight = window.innerHeight - 20
 
 class Mass {
   constructor(x, y, mass, radius, rotationAngle, xSpeed, ySpeed, rotationSpeed) {
+    this.guid = generateGuid()
     this.x = x;
     this.y = y;
     this.mass = mass || 1;

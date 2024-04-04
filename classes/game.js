@@ -52,7 +52,7 @@ class Game {
     this.setLives();
     this.setLevel();
     this.setScore();
-    this.projectiles = [];
+    this.projectiles = new Map();
     this.asteroids = [];
     this.particles = [];
     this.powerups = [];
@@ -115,16 +115,16 @@ class Game {
     });
 
     // Projectiles
-    this.projectiles.forEach((projectile, i, projectiles) => {
+    this.projectiles.forEach((projectile, key, projectiles) => {
       projectile.update(elapsed);
       if (projectile.life < 0) {
         projectile.destroy();
-        projectiles.splice(i, 1);
+        projectiles.delete(key)
       } else {
         this.asteroids.forEach((asteroid, j) => {
           if (collision(asteroid, projectile)) {
-            projectiles.splice(i, 1);
             projectile.destroy();
+            projectiles.delete(key)
             asteroid.destroy();
             this.asteroids.splice(j, 1);
             this.splitAsteroid(asteroid, elapsed);
@@ -133,10 +133,11 @@ class Game {
         this.powerups.forEach((powerup, k) => {
           if (collision(powerup, projectile)) {
             this.usePowerup(powerup.type);
-            projectiles.splice(i, 1);
-            projectile.destroy()
+            projectile.destroy();
+            projectiles.delete(key)
+
+            powerup.destroy();
             this.powerups.splice(k, 1);
-            powerup.destroy()
           }
         });
       }
@@ -146,14 +147,15 @@ class Game {
     this.particles.forEach((particle, i, particles) => {
       particle.update(elapsed);
       if (particle.life < 0) {
-        particles.splice(i, 1)
-        particle.destroy()
+        particle.destroy();
+        particles.splice(i, 1);
       }
     });
 
     // Ship
     if (this.ship.trigger && this.ship.loaded && !this.ship.guide && !this.gameOver && !this.titleScreen) {
-      this.projectiles.push(this.ship.projectile(elapsed));
+      const projectile = this.ship.projectile(elapsed)
+      this.projectiles.set(projectile.guid, projectile)
     }
 
     // Powerups
@@ -174,6 +176,7 @@ class Game {
 
   levelUp() {
     this.projectiles.forEach((projectile) => projectile.destroy());
+    this.projectiles = new Map();
     this.level++;
     for (let i = 0; i < this.level + 1; i++) {
       this.asteroids.push(this.createAsteroid());
@@ -357,5 +360,9 @@ const elasticCollision = (obj1, obj2) => {
   obj2.xSpeed += impulse * obj1.mass * Math.cos(collisionAngle);
   obj2.ySpeed += impulse * obj1.mass * Math.sin(collisionAngle);
 };
+
+let guid = 1
+
+export const generateGuid = () => guid++
 
 export { Game };

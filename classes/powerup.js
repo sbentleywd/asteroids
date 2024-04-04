@@ -19,7 +19,7 @@ class Powerup extends Mass {
 
   draw() {
     const powerupGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    powerupGroup.setAttribute("transform", `translate(${this.x} ${this.y}) ç`);
+    powerupGroup.setAttribute("transform", `translate(${this.x} ${this.y})`);
     powerupGroup.setAttribute("stroke", `white`);
 
     const outline = document.createElementNS("http://www.w3.org/2000/svg", "circle");
