@@ -53,11 +53,11 @@ class Game {
     this.setLevel();
     this.setScore();
     this.projectiles = new Map();
-    this.asteroids = [];
-    this.particles = [];
+    this.asteroids = new Map();
+    this.particles = new Map();
     this.powerups = new Map();
-    this.asteroids.push(this.createAsteroid());
-    this.asteroids.push(this.createAsteroid());
+    this.createAsteroid();
+    this.createAsteroid();
     this.gameOverNode.style.display = "none";
     if (!this.titleScreen) this.ship.svgNode.setAttribute("display", "inline");
   }
@@ -121,12 +121,12 @@ class Game {
         projectile.destroy();
         projectiles.delete(projectileGuid)
       } else {
-        this.asteroids.forEach((asteroid, j) => {
+        this.asteroids.forEach((asteroid, asteroidGuid, asteroids) => {
           if (collision(asteroid, projectile)) {
             projectile.destroy();
             projectiles.delete(projectileGuid)
             asteroid.destroy();
-            this.asteroids.splice(j, 1);
+            asteroids.delete(asteroidGuid)
             this.splitAsteroid(asteroid, elapsed);
           }
         });
@@ -144,11 +144,11 @@ class Game {
     });
 
     // Particles
-    this.particles.forEach((particle, i, particles) => {
+    this.particles.forEach((particle, particleGuid, particles) => {
       particle.update(elapsed);
       if (particle.life < 0) {
         particle.destroy();
-        particles.splice(i, 1);
+        particles.delete(particleGuid)
       }
     });
 
@@ -169,7 +169,7 @@ class Game {
 
     if (this.score !== this.previousScore) this.setScore();
 
-    if (this.asteroids.length === 0) {
+    if (this.asteroids.size === 0) {
       this.levelUp();
     }
   }
@@ -179,7 +179,7 @@ class Game {
     this.projectiles = new Map();
     this.level++;
     for (let i = 0; i < this.level + 1; i++) {
-      this.asteroids.push(this.createAsteroid());
+      this.createAsteroid()
     }
     this.setLevel();
 
@@ -238,7 +238,7 @@ class Game {
   createAsteroid() {
     const asteroid = this.initAsteroid();
     this.pushAsteroid(asteroid);
-    return asteroid;
+    this.asteroids.set(asteroid.guid, asteroid)
   }
 
   initAsteroid() {
@@ -271,7 +271,7 @@ class Game {
         this.score += child.mass;
       } else {
         this.pushAsteroid(child, elapsed);
-        this.asteroids.push(child);
+        this.asteroids.set(child.guid, child);
       }
     });
 
@@ -290,7 +290,7 @@ class Game {
       Math.random() * 20,
       this.svgNode
     );
-    this.particles.push(explosionParticle);
+    this.particles.set(explosionParticle.guid, explosionParticle);
   }
 
   // Keyboard handling
