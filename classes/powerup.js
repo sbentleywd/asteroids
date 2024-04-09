@@ -56,10 +56,6 @@ class Powerup extends Mass {
   updateSVG() {
     this.svgNode.setAttribute("transform", `translate(${this.x} ${this.y}) rotate(180)`);
   }
-
-  destroy() {
-    this.svgNode.remove();
-  }
 }
 
 export { Powerup };

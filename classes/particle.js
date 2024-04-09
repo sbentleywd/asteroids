@@ -31,10 +31,6 @@ class Particle extends Mass {
     this.svgNode.setAttribute("cx", this.x);
     this.svgNode.setAttribute("cy", this.y);
   }
-
-  destroy() {
-    this.svgNode.remove()
-  }
 }
 
 export { Particle };

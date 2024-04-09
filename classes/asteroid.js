@@ -76,9 +76,6 @@ class Asteroid extends Mass {
     this.svgNode.setAttribute('transform', `translate(${this.x} ${this.y}) rotate(${this.rotationAngle})`)
   }
 
-  destroy() {
-    this.svgNode.remove()
-  }
 }
 
 export { Asteroid }

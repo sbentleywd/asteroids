@@ -33,10 +33,6 @@ class Projectile extends Mass {
     this.svgNode.setAttribute("cy", this.y);
   }
 
-  destroy() {
-    this.svgNode.remove()
-  }
-
 }
 
 export { Projectile };

@@ -46,7 +46,7 @@ class Mass {
   }
 
   destroy() {
-    this.gameNode.removeChild(this.svgNode);
+    this.svgNode.remove()
   }
 }
 
