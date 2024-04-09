@@ -53,6 +53,7 @@ class Game {
     this.setLevel();
     this.setScore();
     this.projectiles = new Map();
+    if (this.asteroids) this.asteroids.forEach(asteroid => asteroid.destroy())
     this.asteroids = new Map();
     this.particles = new Map();
     this.powerups = new Map();
@@ -225,9 +226,8 @@ class Game {
 
   endGame() {
     this.projectiles.forEach((projectile) => projectile.destroy());
-    this.asteroids.forEach((asteroid) => asteroid.destroy());
-    this.particles.forEach(particle => particle.destroy())
-    this.powerups.forEach(powerup => powerup.destroy())
+    this.particles.forEach(particle => particle.destroy());
+    this.powerups.forEach(powerup => powerup.destroy());
     this.gameOverNode.style.display = "flex";
     this.gameOver = true;
     this.ship.svgNode.setAttribute("display", "none");
