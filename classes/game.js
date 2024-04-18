@@ -76,6 +76,7 @@ class Game {
     this.ship.ySpeed = 0;
     this.ship.rotationAngle = 0;
     this.ship.lives = 3;
+    this.ship.shieldEnabled = false;
   }
 
   createPowerup(type) {
@@ -199,7 +200,7 @@ class Game {
   }
 
   setScore() {
-    this.scoreNode.innerHTML = Math.round(this.score);
+    this.scoreNode.innerHTML = Math.round(this.score).toLocaleString();
   }
 
   setLives() {
